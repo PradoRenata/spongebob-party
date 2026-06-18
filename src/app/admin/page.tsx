@@ -22,11 +22,18 @@ export default function AdminPage() {
   }
 
   const tryLogin = async () => {
-    const res = await fetch('/api/party', { headers: { 'x-admin-password': password } })
-    if (res.status === 401) { setAuthError('Contraseña incorrecta'); return }
-    const json = await res.json()
-    setData(json)
-    setAuthed(true)
+    if (!password.trim()) { setAuthError('Ingresa tu contraseña'); return }
+    setAuthError('Verificando...')
+    try {
+      const res = await fetch('/api/party', { headers: { 'x-admin-password': password } })
+      if (res.status === 401) { setAuthError('Contraseña incorrecta'); return }
+      if (!res.ok) { setAuthError('Error del servidor: ' + res.status); return }
+      const json = await res.json()
+      setData(json)
+      setAuthed(true)
+    } catch(e) {
+      setAuthError('Error de conexión: ' + String(e))
+    }
   }
 
   const save = async () => {
